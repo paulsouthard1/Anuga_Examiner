@@ -1,0 +1,20 @@
+(lp0
+S'topo_in: 11_fbe_usw'
+p1
+aS'bound_in: channel_upper'
+p2
+aS'res: 10'
+p3
+aS'inlet_elev: 1422.3'
+p4
+aS'inlet_stage: 1'
+p5
+aS't_to_print: 30'
+p6
+aS'duration: 1500'
+p7
+aS'inlet_btag: 0'
+p8
+aS'outlet_btag: 8'
+p9
+a.
