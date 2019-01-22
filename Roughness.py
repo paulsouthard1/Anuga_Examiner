@@ -14,7 +14,7 @@ args = parser.parse_args()
 # Define function to load Z ref values in
 def LoadZRef(ZRef_File):
     # Load array of Zref
-    zref = np.genfromtxt('zref',delimiter = ' ',skip_header = 6)
+    zref = np.genfromtxt(ZRef_File,delimiter = ' ',skip_header = 6)
     # Remove all negative values and NoData
     zref[zref < 0] = 0
     return zref
@@ -22,7 +22,7 @@ def LoadZRef(ZRef_File):
 # Define function to load depth values in
 def LoadDepth(Depth_File):
     # Load array of depth
-    depth = np.genfromtxt('depth.txt',delimiter = ' ',skip_header = 6)
+    depth = np.genfromtxt(Depth_File,delimiter = ' ',skip_header = 6)
     depth[depth < 0] = 0
     return depth
 
@@ -53,19 +53,19 @@ def ReadWriteRaster(inraster,outraster,array):
         for i in range(6):
             header[i]=file.readline()
     file.close()
-    with open(outfile,'w') as file:
+    with open(outraster,'w') as file:
         for i in range(6):
             file.write(header[i])
     file.close()
-    savetxt('vals.txt',n)
+    savetxt('vals.txt',array)
     datafile = open('vals.txt','r')
     data = datafile.read()
     datafile.close()
-    with open(outfile,'a') as file:
+    with open(outraster,'a') as file:
         file.write(data)
     file.close()
 
-def Main(ZRef_File,Depth_File,N_File,Background_n):
+def Main(ZRef_File,Depth_File,N_File,Background_N):
     # Define constants
     Cu = 4.5
     a = 1
@@ -73,14 +73,15 @@ def Main(ZRef_File,Depth_File,N_File,Background_n):
     # Load in values from rasters as arrays
     zref = LoadZRef(ZRef_File)
     depth = LoadDepth(Depth_File)
+    depth = depth[:-1,:-1]
     # Produced masked array of roughness
     eps = Epsilon(zref,depth)
     func = Func(a,eps)
     n = NCalc(Cu,g,depth,func)
     # Fill masked values with default of 0.04
-    Background_N = float(Background_n)
-    n = ma.filled(n,fill_value=Background_n)
-    ReadWriteRaster(ZRef_File,N_File,Background_n)
+    Background_N = float(Background_N)
+    n = ma.filled(n,fill_value=Background_N)
+    ReadWriteRaster(ZRef_File,N_File,n)
 
 Main(args.ZRef_File,args.Depth_File,args.N_File,args.Background_N)
 
