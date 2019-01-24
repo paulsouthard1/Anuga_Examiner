@@ -10,7 +10,6 @@ parser.add_argument('N_File', help='Name for ASCII Raster output of roughness va
 parser.add_argument('Background_N',help='Background Roughness value of channel, where there is no vegetation')
 args = parser.parse_args()
 
-
 # Define function to load Z ref values in
 def LoadZRef(ZRef_File):
     # Load array of Zref
@@ -76,6 +75,7 @@ def Main(ZRef_File,Depth_File,N_File,Background_N):
     depth = depth[:-1,:-1]
     # Produced masked array of roughness
     eps = Epsilon(zref,depth)
+    print(str(eps.max()) + ' ' + str(eps.mean()))
     func = Func(a,eps)
     n = NCalc(Cu,g,depth,func)
     # Fill masked values with default of 0.04
