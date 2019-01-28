@@ -15,33 +15,33 @@ def LoadZRef(ZRef_File):
     # Load array of Zref
     zref = np.genfromtxt(ZRef_File,delimiter = ' ',skip_header = 6)
     # Remove all negative values and NoData
-    zref[zref < 0] = 0
+    zref[zref < 0] = 0.
     return zref
 
 # Define function to load depth values in
 def LoadDepth(Depth_File):
     # Load array of depth
     depth = np.genfromtxt(Depth_File,delimiter = ' ',skip_header = 6)
-    depth[depth < 0] = 0
+    depth[depth < 0] = 0.
     return depth
 
 # Define function to calculate array of Epsilon values
 def Epsilon(zref,depth):
     newzref = ma.masked_where(zref == 0,zref)
-    epsilon = depth/zref
+    epsilon = depth/newzref
     epsilon = ma.masked_where(epsilon <= 0.2,epsilon)
-    epsilon = ma.masked_where(epsilon >= 7,epsilon)
+    epsilon = ma.masked_where(epsilon >= 7.,epsilon)
     return epsilon
 
-# Define fucntion to calculate array of function of alpha and epsilon
+# Define function to calculate array of function of alpha and epsilon
 def Func(alpha,epsilon):
-    function = ma.masked_where(epsilon == 0, epsilon)
-    function = 1+(alpha*(1/function)*np.log((np.cosh((1/alpha)-((1/alpha)*function)))/(np.cosh(1/alpha))))
+    neweps = ma.masked_where(epsilon == 0, epsilon)
+    function = 1.+(alpha*(1./neweps)*np.log((np.cosh((1./alpha)-((1./alpha)*neweps)))/(np.cosh(1./alpha))))
     return function
 
 # Define function to calculate array of roughness values
 def NCalc(Cu,g,depth,function):
-    n = (depth**(1/6)/((g**(1/2))*Cu*function))
+    n = (depth**(1./6.)/((g**(1./2.))*Cu*function))
     return n
 
 # Define function to read in raster ASCII header and create output raster ASCII
@@ -67,20 +67,24 @@ def ReadWriteRaster(inraster,outraster,array):
 def Main(ZRef_File,Depth_File,N_File,Background_N):
     # Define constants
     Cu = 4.5
-    a = 1
+    a = 1.
     g = 9.8 # m/s^2
     # Load in values from rasters as arrays
     zref = LoadZRef(ZRef_File)
     depth = LoadDepth(Depth_File)
     depth = depth[:-1,:-1]
+    print(str(depth.max()) + ' ' + str(depth.mean())+ ' ' + str(depth.min()))
     # Produced masked array of roughness
     eps = Epsilon(zref,depth)
-    print(str(eps.max()) + ' ' + str(eps.mean()))
+    print(str(zref.max()) + ' ' + str(zref.mean())+ ' ' + str(zref.min()))
+    print(str(eps.max()) + ' ' + str(eps.mean())+ ' ' + str(eps.min()))
     func = Func(a,eps)
     n = NCalc(Cu,g,depth,func)
+    print(str(n.max()) + ' ' + str(n.mean())+ ' ' + str(n.min()))
     # Fill masked values with default of 0.04
     Background_N = float(Background_N)
     n = ma.filled(n,fill_value=Background_N)
+    print(str(n.max()) + ' ' + str(n.mean())+ ' ' + str(n.min()))
     ReadWriteRaster(ZRef_File,N_File,n)
 
 Main(args.ZRef_File,args.Depth_File,args.N_File,args.Background_N)

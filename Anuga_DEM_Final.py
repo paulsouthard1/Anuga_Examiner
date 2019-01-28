@@ -23,7 +23,7 @@ def CreateDir(Input_SWW,Output_DEM_Path):
 def CreateRasts(Input_SWW,path_final,filename):
     quantities = ['stage','depth','momentum']
     for i in range(len(quantities)):
-    	print('Creating raster for quantity ' + quantities[i])
+        print('Creating raster for quantity ' + quantities[i])
         outname = path_final + '\\' + str(filename) + "_" + str(quantities[i] + ".asc")
         anuga.sww2dem(Input_SWW,outname,quantity=quantities[i],reduction = max, cellsize = 1)
 
